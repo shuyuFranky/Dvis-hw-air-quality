@@ -2,10 +2,23 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/css/style.css' />
+    <script type="text/javascript" src="/js/jquery.js" ></script>
+    <script type="text/javascript" src="/js/map.js"></script>
+    <script type="text/javascript" src="/js/getData.js"></script>
+    <script type="text/javascript" src="/js/echarts.js"></script>  
   </head>
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    <div id="chinaMap" style="width:800px;height:600px;">
+
+    </div>
   </body>
+
+  <script type="text/javascript">
+    var data = getData();
+    console.log(data);
+    $('#chinaMap').drawmap(data);
+  </script>
 </html>
