@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Dvis-Air</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/portfolio-item.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" src="js/jquery.js" ></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js" ></script>
+
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.js"></script>
+    <script src="src/scatter.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <% include include/nav.ejs %>
+
+    <!-- Page Content -->
+    <div class="container">
+
+        <!-- Portfolio Item Heading -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">Air Quality
+                    <small>All China</small>
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        <!-- Portfolio Item Row -->
+        <div class="row">
+
+            <!-- <div class="col-md-8">
+                <img class="img-responsive" src="http://placehold.it/750x500" alt="">
+            </div> -->
+
+            <div class="col-md-8" id="scatter" style="width: 1024px; height: 600px;"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="year">
+                <h3>Choose by Year <big class="yC"> ---- </big></h3>
+                <div class="pagination">
+                    <ul>
+                      <li><a href="javascript:void(0)">Prev</a></li>
+                      <li><a href="javascript:void(0)">2000</a></li>
+                      <li><a href="javascript:void(0)">2001</a></li>
+                      <li><a href="javascript:void(0)">2002</a></li>
+                      <li><a href="javascript:void(0)">2003</a></li>
+                      <li><a href="javascript:void(0)">2004</a></li>
+                      <li><a href="javascript:void(0)">2005</a></li>
+                      <li><a href="javascript:void(0)">2006</a></li>
+                      <li><a href="javascript:void(0)">2007</a></li>
+                      <li><a href="javascript:void(0)">2008</a></li>
+                      <li><a href="javascript:void(0)">2009</a></li>
+                      <li><a href="javascript:void(0)">2010</a></li>
+                      <li><a href="javascript:void(0)">2011</a></li>
+                      <li><a href="javascript:void(0)">2012</a></li>
+                      <li><a href="javascript:void(0)">2013</a></li>
+                      <li><a href="javascript:void(0)">Next</a></li>
+                    </ul>
+                  </div>
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-md-8" id="yearChange">
+                    <h3>Changes during the year <big class="yC"> ---- </big>.</h3>
+                    <button type="button" class="btn btn-primary">Show</button>
+                    <button type="button" class="btn btn-warning">Stop</button>
+                </div>
+                <div class="col-sm-3 col-xs-6" id="persionimg">
+                    <a href="#">
+                        <img class="img-responsive portfolio-item" src="/images/p1.png" alt="">
+                    </a>
+                </div>
+            </div>
+            <!-- /.row -->
+        <hr>
+        <!-- Footer -->
+        <%include include/footer.ejs %>
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery -->
+    <!-- <script src="/js/jquery.js"></script> -->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        var china;
+        var geoData;
+        var airData;
+        var scatterChart;
+        var year;
+        window.onload = function () {
+            // init echarts
+            scatterChart = echarts.init(document.getElementById('scatter'));
+            scatterChart.showLoading();
+
+            // load data
+            $.get('map/china.json', function (json) {
+                china = json;
+                $.get('map/city.json', function(json) {
+                geoData = json;
+                    $.get('aqi/data.json', function (json) { 
+                        airData = json;
+                        // 散点图
+                        scatterInit(2000, scatterChart, china, geoData, airData);
+                    });
+                });
+            });
+        }
+        $(".pagination li a").click(
+            function() {
+                year = $(this).text();
+                console.log(year);
+                $('.yC').text(year);
+                scatterInit(year, scatterChart, china, geoData, airData);
+            }
+        );
+        var interval;
+        $(".btn-primary").click(
+            function() {
+                console.log(year);
+                $('.yC').text(year);
+                var day = 0;
+                interval = setInterval(function(){
+                    if (day == 365) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    scatterChange(year, day, scatterChart, china, geoData, airData);
+                    day += 1;
+                },500)
+            }
+        )
+        $(".btn-warning").click(
+            function() {
+                clearInterval(interval);
+                return; 
+            }
+        )
+    </script>
+
+    <!-- <script src="/js/myecharts.js"></script>  -->
+
+</body>
+
+</html>
